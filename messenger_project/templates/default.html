@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Мессенджер</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="text-center mt-4">
+            {% if user.is_authenticated %}
+                <div class="container mt-5 user-greeting">
+                    <div class="user-info">
+                        {% if user.userprofile.avatar %}
+                            <img src="{{ user.userprofile.avatar.url }}" alt="Avatar"> 
+                        {% else %}
+                            <img src="{% static 'default_avatar.png' %}" alt="Default Avatar"> 
+                        {% endif %}
+                        <div class="greeting-text">Привет, {{ user.username }}!</div>
+                    </div>
+                    <div>
+                        <a href="{% url 'create_chat' %}" class="btn btn-success">Создать групповой чат</a>
+                        <a href="{% url 'profile' %}" class="btn btn-primary">Редактировать профиль</a>
+                        <a href="{% url 'logout' %}" class="btn btn-danger">Выйти</a>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h3>Ваши Чаты</h3>
+                    <div class="mb-3">
+                        <a href="?filter=private" class="btn btn-secondary">Приватные Чаты</a>
+                        <a href="?filter=group" class="btn btn-secondary">Групповые Чаты</a>
+                        <a href="?" class="btn btn-secondary">Все Чаты</a>
+                    </div>
+                    <ul class="list-group">
+                        {% for chat in page_obj.object_list %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {% if chat.is_group %}
+                                    <!-- Ссылка для группового чата -->
+                                    <a href="{% url 'chat_room' chat.id %}">{{ chat.display_name }}</a>
+                                {% else %}
+                                    <!-- Ссылка для приватного чата -->
+                                    <a href="{% url 'private_chat' chat.other_user_id %}">{{ chat.display_name }}</a>
+                                {% endif %}
+                                <div>
+                                    {% if chat.is_group %}
+                                        <a href="{% url 'edit_chat' chat.id %}" class="btn btn-warning btn-sm">Редактировать</a>
+                                        <form method="post" action="{% url 'delete_chat' chat.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">Нет доступных чатов.</li> <!-- Отображаем сообщение, если чатов нет -->
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Пагинация -->
+                    <nav aria-label="Page navigation">
+                        <div class="d-flex justify-content-center">
+                            <ul class="pagination">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1" aria-label="First">
+                                            <span aria-hidden="true">&laquo;&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item disabled"><a class="page-link" href="#">{{ page_obj.number }}</a></li>
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                            <span aria-hidden="true">&raquo;&raquo;</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </nav>
+
+
+                    <div class="mt-4">
+                        <h3>Все Пользователи</h3>
+                        <ul class="list-group">
+                            <div class="text-center mt-4">
+                                <a href="{% url 'all_users' %}" class="btn btn-info">Посмотреть всех пользователей</a>
+                            </div>
+                        </ul>
+                    </div>
+            {% else %}
+                <div class="container mt-5 user-greeting">  
+                    <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+                    <a href="{% url 'signup' %}" class="btn btn-success">Регистрация</a>
+                </div>
+                <p></p>
+                <h1>Добро пожаловать в мессенджер!</h1>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

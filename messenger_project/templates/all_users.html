@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Все пользователи</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-4">Все Пользователи</h1>
+        <ul class="list-group mt-4">
+            {% for user in users %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-container">
+                            {% if user.userprofile.avatar %}
+                                <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}">
+                            {% else %}
+                                <img src="{% static 'default_avatar.png' %}" alt="{{ user.username }}">
+                            {% endif %}
+                        </div>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    <a href="{% url 'create_private_chat' user.id %}" class="btn btn-primary">Написать сообщение</a>
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <div class="mt-4">
+            <div class="d-flex justify-content-center">
+                {% if users.has_previous %}
+                    <a href="?page=1" class="btn btn-secondary">Первая</a>
+                    <a href="?page={{ users.previous_page_number }}" class="btn btn-secondary">Предыдущая</a>
+                {% endif %}
+                <span class="mx-2">Страница {{ users.number }} из {{ users.paginator.num_pages }}</span>
+                {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}" class="btn btn-secondary">Следующая</a>
+                    <a href="?page={{ users.paginator.num_pages }}" class="btn btn-secondary">Последняя</a>
+                {% endif %}
+            </div>
+        </div>
+        <p></p>
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'default' %}" class="btn btn-secondary mb-3">Назад на главную</a>
+        </div>
+
+    </div>
+</body>
+</html>

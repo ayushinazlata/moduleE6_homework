@@ -14,14 +14,19 @@ class UserRegistrationForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2', 'avatar']
 
     def save(self, commit=True):
-        user = super().save(commit)
-        profile = UserProfile.objects.get_or_create(user=user)
-        avatar = self.cleaned_data.get('avatar')
-
-        if avatar:
-            profile.avatar = avatar
-        profile.save()
+        user = super().save(commit=False)  # Сохраняем User только при commit=True
+        user.email = self.cleaned_data.get('email')
         
+        if commit:
+            user.save()
+
+        profile, created = UserProfile.objects.get_or_create(user=user)
+
+        avatar = self.cleaned_data.get('avatar')
+        if avatar:
+            profile.avatar = avatar 
+            profile.save()
+
         return user
 
 

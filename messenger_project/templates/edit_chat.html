@@ -13,7 +13,7 @@
             {% csrf_token %}
             {{ form.name.label_tag }}  
             {{ form.name }}  
-            <h4>Participants:</h4>
+            <h4>Участники:</h4>
             {% for user in form.participants %}
                 <div>
                     {{ user.tag }} {{ user.choice_label }}  

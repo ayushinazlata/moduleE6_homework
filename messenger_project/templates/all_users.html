@@ -6,7 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <title>Все пользователи</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+            .avatar-container {
+                width: 40px; /* Ширина контейнера для аватара */
+                height: 40px; /* Высота контейнера для аватара */
+                overflow: hidden; /* Скрываем часть изображения, выходящую за границы контейнера */
+                border-radius: 5px; /* Закругление углов для контейнера */
+                display: inline-block; /* Используем inline-block для правильного выравнивания */
+                margin-right: 10px; /* Отступ справа от аватара */
+            }
+    
+            .avatar-container img {
+                width: 100%; /* Ширина 100% для заполнения контейнера */
+                height: auto; /* Автоматическая высота для сохранения пропорций */
+            }
+    </style>
 </head>
 <body>
     <div class="container">

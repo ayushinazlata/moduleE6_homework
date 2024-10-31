@@ -29,19 +29,32 @@ class CustomLoginView(LoginView):
 # Страница регистрации
 def signup_view(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST, request.FILES) 
+        form = UserRegistrationForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
-            return redirect('login') 
+            user = form.save()
+            print(f"User saved successfully: {user.username}")
+            
+            # Проверяем, был ли аватар сохранен в профиле
+            if hasattr(user, 'userprofile') and user.userprofile.avatar:
+                print(f"Avatar saved successfully for user {user.username}")
+            else:
+                print(f"No avatar saved for user {user.username}")
+
+            return redirect('login')
+        else:
+            print("Form is not valid:", form.errors)
     else:
         form = UserRegistrationForm()
+        
     return render(request, 'signup.html', {'form': form})
+
 
 
 # Страница выхода из системы
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('default')
 
 
 # Cраница редактирования профиля

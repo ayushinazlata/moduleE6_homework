@@ -16,11 +16,16 @@ function initializeChat(chatType, roomName, username) {
         };
 
         chatSocket.onmessage = function(e) {
+            const currentUserId = document.getElementById('current-user-id')?.value;
+            if (!currentUserId) {
+                console.error("Ошибка: currentUserId не определен.");
+                return;
+            }
             const data = JSON.parse(e.data);
             console.log("Данные, полученные от сервера:", data);
             const isSystemMessage = data.username === 'System';
             const userId = data.user_id || currentUserId; 
-            addMessageToChat(data.username, data.message, data.timestamp, isSystemMessage, userId);
+            addMessageToChat(data.username, data.message, data.timestamp, isSystemMessage, userId, currentUserId);
         };
 
         chatSocket.onclose = function() {
@@ -54,15 +59,19 @@ function updateConnectionStatus(status) {
 }
 
 // Функция для добавления сообщения в лог чата
-function addMessageToChat(username, message, timestamp, isSystemMessage = false, userId = null) {
+function addMessageToChat(username, message, timestamp, isSystemMessage = false, userId = null, currentUserId = null) {
     const chatLog = document.getElementById('chat-log');
-    const currentUserAvatar = document.getElementById('current-user-avatar').value || '/static/default_avatar.png';
+    const currentUserAvatar = document.getElementById('current-user-avatar')?.value || '/static/default_avatar.png';
     const chatType = document.getElementById('chat-type').value;
-    const currentUserId = document.getElementById('current-user-id').value;
+
+    if (!currentUserId) {
+        console.error("Ошибка: currentUserId не определен.");
+        return;
+    }
 
     let avatarPath;
     if (chatType === "private") {
-        const otherUserAvatar = document.getElementById('other-user-avatar').value || '/static/default_avatar.png';
+        const otherUserAvatar = document.getElementById('other-user-avatar')?.value || '/static/default_avatar.png';
         avatarPath = userId == currentUserId ? currentUserAvatar : otherUserAvatar;
     } else {
         const userAvatarsJson = document.getElementById('user-avatars-json') ? document.getElementById('user-avatars-json').value : '{}';
@@ -94,7 +103,7 @@ function addMessageToChat(username, message, timestamp, isSystemMessage = false,
             </div>
         `;
     } else {
-        const safeMessage = message !== undefined && message !== null ? message : "Сообщение недоступно";
+        const safeMessage = message || "Сообщение недоступно";
         messageElement.innerHTML = `
             <div class="message">
                 <div class="avatar">
@@ -129,6 +138,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const messageInput = document.getElementById('chat-message-input');
         const message = messageInput.value;
         const username = document.getElementById('username').value;
+        const currentUserId = document.getElementById('current-user-id')?.value;
+
+        if (!currentUserId) {
+            console.error("currentUserId не инициализирован.");
+            alert("Ошибка: идентификатор текущего пользователя не найден.");
+            return;
+        }
 
         if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
             chatSocket.send(JSON.stringify({
@@ -162,15 +178,17 @@ document.addEventListener('DOMContentLoaded', function() {
 function closeConnection() {
     if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
         chatSocket.close();
-        sendSystemMessage('Соединение закрыто.');
+        const currentUserId = document.getElementById('current-user-id')?.value;
+        sendSystemMessage('Соединение закрыто.', currentUserId);
     }
 }
 
 // Функция для отправки системного сообщения
-function sendSystemMessage(message) {
+function sendSystemMessage(message, currentUserId = null) {
     console.log("Отправка системного сообщения:", message);
     const username = 'System';
     const timestamp = new Date().toISOString();
+    currentUserId = currentUserId || document.getElementById('current-user-id')?.value;
 
     if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
         chatSocket.send(JSON.stringify({
@@ -180,7 +198,7 @@ function sendSystemMessage(message) {
             'isSystemMessage': true
         }));
     } else {
-        addMessageToChat(username, message, timestamp, true);
+        addMessageToChat(username, message, timestamp, true, null, currentUserId);
     }
 }
 
@@ -203,12 +221,14 @@ function loadPreviousMessages(chatId) {
         .then(data => {
             console.log("Сообщения, полученные с сервера:", data);
             data.forEach(message => {
+                const currentUserId = document.getElementById('current-user-id')?.value;
                 addMessageToChat(
                     message.sender.username,
                     message.content,
                     message.timestamp,
                     false,
-                    message.sender.id 
+                    message.sender.id,
+                    currentUserId
                 );
             });
         })

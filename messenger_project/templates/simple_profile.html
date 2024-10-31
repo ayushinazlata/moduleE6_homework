@@ -6,7 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Редактирование профиля</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        .avatar-container {
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border: 2px solid #007bff;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+        
+        #avatarPreview {
+            max-width: none;
+            width: auto;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
